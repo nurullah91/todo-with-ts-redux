@@ -1,36 +1,68 @@
-import { Button } from '../ui/button';
-import { removeTodo } from '@/redux/features/todoSlice';
+import { useUpdateTodoMutation } from "@/redux/api/api";
+import { Button } from "../ui/button";
 
 type TTodoCardProps = {
-  id: string;
+  _id: string;
   title: string;
   description: string;
   isCompleted?: boolean;
+  priority: string;
 };
 
-const TodoCard = ({ title, description, id, isCompleted }: TTodoCardProps) => {
+const TodoCard = ({
+  _id,
+  title,
+  description,
+  isCompleted,
+  priority,
+}: TTodoCardProps) => {
+  const [updateTodo, { isLoading }] = useUpdateTodoMutation();
   const toggleState = () => {
-    console.log('Toggle');
+    const taskData = {
+      title,
+      description,
+      priority,
+      isCompleted: !isCompleted,
+    };
+    const options = {
+      id: _id,
+      data: taskData,
+    };
+    console.log({ isLoading });
+    updateTodo(options);
   };
 
   return (
-    <div className="bg-white rounded-md flex justify-between items-center p-3 border">
+    <div className="bg-white/90 rounded-md flex justify-between items-center p-3 border">
       <input
+        className="mr-3"
         onChange={toggleState}
         type="checkbox"
         name="complete"
         id="complete"
+        defaultChecked={isCompleted}
       />
-      <p className="font-semibold">{title}</p>
-      {/* <p>Time</p> */}
-      <div>
+      <p className="font-semibold flex-1">{title}</p>
+      <div className="flex-1 flex items-center gap-2">
+        <div
+          className={`
+          size-3 rounded-full 
+          ${priority === "high" ? "bg-red-500" : null}
+          ${priority === "medium" ? "bg-yellow-500" : null}
+          ${priority === "low" ? "bg-green-500" : null}
+          `}
+        ></div>
+        <p className="font-semibold flex-1">{priority}</p>
+      </div>
+
+      <div className="flex-1">
         {isCompleted ? (
           <p className="text-green-500">Done</p>
         ) : (
           <p className="text-red-500">Pending</p>
         )}
       </div>
-      <p>{description}</p>
+      <p className="flex-[2]">{description}</p>
       <div className="space-x-5">
         <Button className="bg-red-500">
           <svg
